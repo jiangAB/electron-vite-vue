@@ -39,9 +39,10 @@ let win: BrowserWindow | null = null
 const preload = join(__dirname, '../preload/index.js')
 const url = process.env.VITE_DEV_SERVER_URL
 const indexHtml = join(process.env.DIST, 'index.html')
-
 async function createWindow() {
   win = new BrowserWindow({
+    
+
     title: 'Main window',
     icon: join(process.env.PUBLIC, 'favicon.ico'),
     webPreferences: {
@@ -52,8 +53,9 @@ async function createWindow() {
       nodeIntegration: true,
       contextIsolation: false,
     },
+    
   })
-
+  win.setMenu(null)
   if (process.env.VITE_DEV_SERVER_URL) { // electron-vite-vue#298
     win.loadURL(url)
     // Open devTool if the app is not packaged
