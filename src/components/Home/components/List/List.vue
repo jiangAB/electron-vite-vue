@@ -30,7 +30,7 @@ const props = defineProps(['who','text'])
     margin: 0 auto;
     width: 80%;
     height: 100%;
-    padding: 0 2%;
+    // padding: 0 2%;
     display: flex;
     align-items: center;
     border-bottom: 1px solid #00000027;

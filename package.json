@@ -162,6 +162,7 @@
     "minipass": "^5.0.0",
     "minizlib": "^2.1.2",
     "mkdirp": "^1.0.4",
+    "mqtt": "^4.3.7",
     "ms": "^2.1.2",
     "muggle-string": "^0.2.2",
     "nanoid": "^3.3.6",
