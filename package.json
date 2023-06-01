@@ -201,6 +201,8 @@
     "source-map-js": "^1.0.2",
     "source-map-support": "^0.5.21",
     "sprintf-js": "^1.1.2",
+    "sqlite": "^4.2.1",
+    "sqlite3": "^5.1.6",
     "stat-mode": "^1.0.0",
     "string-width": "^4.2.3",
     "strip-ansi": "^6.0.1",
