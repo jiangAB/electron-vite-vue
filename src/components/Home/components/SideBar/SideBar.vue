@@ -1,18 +1,82 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
+import { SQLiteInit, INSQL } from '../../../../sql/index.js'
+
+const db = SQLiteInit()
+
 const props = defineProps(['enterUser', 'subone', 'getTopic'])
 const meTopic = ''
 const yourTopic = ''
-var state = reactive({ one: 0 })
+var state = reactive({ one: 0,userTable:[] })
+
+INSQL(db, (data) => {
+    data.map((item) => {
+      return item.message = JSON.parse(item.message)
+    })
+    console.log(data, '123123123')
+    // userTable =
+    state.userTable = data
+  })
+// let userTable = [
+//   {
+//     name: '小红', txt: 'A一段文本', topic: 123,
+//     message: [
+//       { who: 'rebot', text: '小红你好,有什么为您效劳的' },
+//       { who: 'person', text: '6666' },
+//     ]
+//   },
+//   {
+//     name: '小蓝', txt: 'B一段文本', topic: 456, message: [
+//       { who: 'rebot', text: '小蓝你好,有什么为您效劳的' },
+//     ]
+//   },
+// ]
+
 const handleClick = (topic: any) => {
+
   state.one = topic
-  props.getTopic(topic)
+  INSQL(db, (data) => {
+    data.map((item) => {
+      return item.message = JSON.parse(item.message)
+    })
+    console.log(data, '123123123')
+    // userTable =
+    state.userTable = data
+  })
+
+  // INSQL(db,(data)=>{
+  //   console.log(userTable)
+  // // userTable = data
+  // // const arr = JSON.parse(data[0].message)
+  // // console.log(arr)
+  // // console.log(data[0].message,typeof(data[0].message))
+  // // console.log(data)
+  // data.map((item) => {
+  //   return item.message = JSON.parse(item.message)
+  // })
+  // // console.log(data,'666')
+  // // console.log(userTable, '123123')
+  // userTable = data
+  // console.log(userTable)
+  // });
+
+  // console.log(easd)
+  const newtxt = state.userTable.filter(item =>
+    item.topic === topic
+  )
+  // console.log(newtxt[0].message)
+  props.getTopic(topic, newtxt[0].message)
+
+  // console.log(newtxt,'newtxt')
 }
-const userTable = [
-  { name: '小红', txt: 'A一段文本', topic: 123 },
-  { name: '小蓝', txt: 'B一段文本', topic: 456 },
-  { name: '小绿', txt: 'C一段文本', topic: 789 },
-]
+
+
+defineExpose({
+  state
+})
+// runSQL(db,userTable)
+//  console.log(ee)
+
 </script>
 <template>
   <!-- <div class="sider-div"> -->
@@ -21,7 +85,7 @@ const userTable = [
     本人Topic:<input type="text" v-model="meTopic" >
     <button @click="props.subone(meTopic)" >锁定</button> -->
   <!-- </div> -->
-  <template v-for="(item, index) in userTable" :key='item.topic'>
+  <template v-for="(item, index) in state.userTable" :key='item.topic'>
     <div class="sider-div" @click="handleClick(item.topic)" :class="{ active: state.one == item.topic }">
       <div class="div-left">
         <img src="../../../../assets/images/人.png" alt="">
@@ -74,4 +138,5 @@ const userTable = [
     color: #999;
     font-size: 12px;
   }
-}</style>
+}
+</style>

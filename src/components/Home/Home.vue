@@ -1,27 +1,26 @@
 <script setup lang="ts">
-import { onBeforeMount, onBeforeUpdate, onMounted, onUpdated, reactive, watch } from 'vue'
+import { onMounted, reactive, watch, ref } from 'vue'
+import {SQLiteInit,SELSQL} from '../../sql/index.js'
+const db = SQLiteInit()
 const mqtt = require('mqtt')
-const fs = require('fs')
 import List from './components/List/List.vue'
 import SideBar from './components/SideBar/SideBar.vue'
-import { on } from 'keyv';
-import G from 'glob';
 let SendValue = ""
-var vyouTopic:any = 147
-var me:any = 147
+var vyouTopic:any
+const changeChildMessage = ref(null)
 const client = mqtt.connect('mqtt://106.75.71.119:1883')
 
 const state = reactive({
   message: [
-    { who: 'rebot', text: '你好,有什么为您效劳的' },
+    // { who: 'rebot', text: '你好,有什么为您效劳的' },
   ]
 })
 // 提供一个 getter 函数
 watch(
   () => state.message,
   (message) => {
-    console.log(JSON.stringify(message))
-    console.log(fs)
+    // console.log(JSON.stringify(message))
+    SELSQL(db,vyouTopic,JSON.stringify(message))
   }
 )
 const topic = '147'
@@ -36,10 +35,22 @@ onMounted(()=>{
   client.on('message', (topic, payload) => {
     console.log('first',topic,payload.toString())
     state.message = [...state.message, { who: 'rebot', text: payload.toString() }]
+    // console.log(topic,'555')
+    if(changeChildMessage.value.userTable === undefined){
+        return
+      }
+    else{console.log(changeChildMessage.value.userTable.filter((item) => {
+      if(item.topic == undefined) return
+        if(item.topic.toString() === vyouTopic){
+          item.message = state.message
+          return item
+        }
+      }),'vyouTopic:',vyouTopic)}
   })
 })
   
   
+
 // onMounted(()=>{
 //   // setTimeout(()=>{
 //   //   subone(me)
@@ -99,6 +110,18 @@ onMounted(()=>{
 			client.publish(Topic, Msg);
 			console.log('发布成功->' + Topic + '->' + Msg)
       state.message = [...state.message, { who: 'person', text: Msg }]
+      if(changeChildMessage.value.userTable === undefined){
+        return
+      }else{
+        console.log(changeChildMessage.value.userTable.filter((item) => {
+        if(item.topic.toString() === Topic){
+          item.message = state.message
+          return item
+        }
+      }))
+      }
+      
+
 		} else {
 			console.log('请先连接服务器')
 		}
@@ -122,16 +145,17 @@ const handleSend = () => {
 // }
 
 /*****传送给子组件的函数***获取侧边栏的topic值*****/
-const getTopic = (topic: any) => {
+const getTopic = (topic: any, newtxt: any) => {
   vyouTopic = topic.toString()
-  console.log(topic)
-  // subone(topic)
+  // console.log(topic)
+  state.message = newtxt
+  // return state.message
 }
 </script>
 
 <template>
   <div class="box">
-    <SideBar  :getTopic="getTopic" />
+    <SideBar ref="changeChildMessage"  :getTopic="getTopic" />
   </div>
   <div class="main">
     <div class="main-top">

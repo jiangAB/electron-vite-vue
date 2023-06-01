@@ -1,7 +1,8 @@
 import { app, BrowserWindow, shell, ipcMain } from 'electron'
 import { release } from 'node:os'
 import { join } from 'node:path'
-
+import sqlite3 from 'sqlite3'
+console.log(sqlite3)
 // The built directory structure
 //
 // ├─┬ dist-electron
