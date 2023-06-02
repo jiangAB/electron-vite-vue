@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
-import { SQLiteInit, INSQL } from '../../../../sql/index.js'
+import { SQLiteInit, INSQL,selectMessage } from '../../../../sql/index.js'
 
 const db = SQLiteInit()
 
@@ -10,12 +10,13 @@ const yourTopic = ''
 var state = reactive({ one: 0,userTable:[] })
 
 INSQL(db, (data) => {
-    data.map((item) => {
-      return item.message = JSON.parse(item.message)
-    })
-    console.log(data, '123123123')
+    // data.map((item) => {
+    //   return item.message = JSON.parse(item.message)
+    // })
+    // console.log(data, '123123123')
     // userTable =
     state.userTable = data
+    console.log(state.userTable,'dasfds')
   })
 // let userTable = [
 //   {
@@ -35,14 +36,18 @@ INSQL(db, (data) => {
 const handleClick = (topic: any) => {
 
   state.one = topic
-  INSQL(db, (data) => {
+  // console.log(topic)
+  selectMessage(db,topic,(data) => {
+    console.log(data,'666666')
+  })
+  /* INSQL(db, (data) => {
     data.map((item) => {
       return item.message = JSON.parse(item.message)
     })
     console.log(data, '123123123')
     // userTable =
     state.userTable = data
-  })
+  }) */
 
   // INSQL(db,(data)=>{
   //   console.log(userTable)
@@ -61,12 +66,12 @@ const handleClick = (topic: any) => {
   // });
 
   // console.log(easd)
-  const newtxt = state.userTable.filter(item =>
+  /* const newtxt = state.userTable.filter(item =>
     item.topic === topic
-  )
+  ) */
   // console.log(newtxt[0].message)
-  props.getTopic(topic, newtxt[0].message)
-
+  /* props.getTopic(topic, newtxt[0].message)
+ */
   // console.log(newtxt,'newtxt')
 }
 
@@ -85,8 +90,8 @@ defineExpose({
     本人Topic:<input type="text" v-model="meTopic" >
     <button @click="props.subone(meTopic)" >锁定</button> -->
   <!-- </div> -->
-  <template v-for="(item, index) in state.userTable" :key='item.topic'>
-    <div class="sider-div" @click="handleClick(item.topic)" :class="{ active: state.one == item.topic }">
+  <template v-for="(item, index) in state.userTable" :key='item.topic_id'>
+    <div class="sider-div" @click="handleClick(item.topic_id)" :class="{ active: state.one == item.topic_id }">
       <div class="div-left">
         <img src="../../../../assets/images/人.png" alt="">
       </div>
