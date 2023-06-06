@@ -164,7 +164,7 @@
     "lowercase-keys": "^2.0.0",
     "lru-cache": "^9.1.2",
     "magic-string": "^0.30.0",
-    "matcher": "^3.0.0",
+    "matcher": "^5.0.0",
     "mime": "^2.6.0",
     "mime-db": "^1.52.0",
     "mime-types": "^2.1.35",
