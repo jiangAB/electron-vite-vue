@@ -1,22 +1,24 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
-import { SQLiteInit, INSQL,selectMessage } from '../../../../sql/index.js'
+import { SQLiteInit,selectMessage,selectList } from '../../../../sql/index.js'
 
 const db = SQLiteInit()
 
-const props = defineProps(['enterUser', 'subone', 'getTopic'])
+const props = defineProps(['enterUser', 'subone', 'getMessage'])
 const meTopic = ''
 const yourTopic = ''
-var state = reactive({ one: 0,userTable:[] })
+var state = reactive({ one: 0,message:[],chatList:[] })
 
-INSQL(db, (data) => {
+selectList(db, (data) => {
+  console.log(data)
+  state.chatList = data
     // data.map((item) => {
     //   return item.message = JSON.parse(item.message)
     // })
     // console.log(data, '123123123')
     // userTable =
-    state.userTable = data
-    console.log(state.userTable,'dasfds')
+    // state.userTable = data
+    // console.log(state.userTable,'dasfds')
   })
 // let userTable = [
 //   {
@@ -33,13 +35,21 @@ INSQL(db, (data) => {
 //   },
 // ]
 
-const handleClick = (topic: any) => {
+const handleClick = (me_id,other_id) => {
 
-  state.one = topic
-  // console.log(topic)
-  selectMessage(db,topic,(data) => {
-    console.log(data,'666666')
+  state.one = other_id
+  console.log(me_id,other_id,'123')
+  selectMessage(db,me_id,other_id,(data) => {
+    // state.message = data
+    props.getMessage(data,other_id,me_id)
   })
+  // console.log(a)
+  // console.log(selectMessage(db,me_id,other_id))
+  // console.log(topic)
+  // console.log(topic)
+  // selectMessage(db,topic,(data) => {
+  //   console.log(data,'666666')
+  // })
   /* INSQL(db, (data) => {
     data.map((item) => {
       return item.message = JSON.parse(item.message)
@@ -90,8 +100,8 @@ defineExpose({
     本人Topic:<input type="text" v-model="meTopic" >
     <button @click="props.subone(meTopic)" >锁定</button> -->
   <!-- </div> -->
-  <template v-for="(item, index) in state.userTable" :key='item.topic_id'>
-    <div class="sider-div" @click="handleClick(item.topic_id)" :class="{ active: state.one == item.topic_id }">
+  <template v-for="(item, index) in state.chatList" :key='item.other_id'>
+    <div class="sider-div" @click="handleClick(item.me_id,item.other_id)" :class="{ active: state.one == item.other_id }">
       <div class="div-left">
         <img src="../../../../assets/images/人.png" alt="">
       </div>

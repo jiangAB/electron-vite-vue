@@ -1,30 +1,30 @@
 <script setup lang="ts">
-import { onMounted, reactive, watch, ref } from 'vue'
-import {SQLiteInit,SELSQL} from '../../sql/index.js'
+import { onMounted, reactive, watch, ref, nextTick } from 'vue'
+import {SQLiteInit,insertMessage,selectMessage} from '../../sql/index.js'
 const db = SQLiteInit()
 const mqtt = require('mqtt')
 import List from './components/List/List.vue'
 import SideBar from './components/SideBar/SideBar.vue'
 let SendValue = ""
 var vyouTopic:any
-const changeChildMessage = ref(null)
+var vmeTopic:any
+const getdiv = ref(null)
+// const changeChildMessage = ref(null)
 const client = mqtt.connect('mqtt://106.75.71.119:1883')
 
-const state = reactive({
-  message: [
-    // { who: 'rebot', text: '你好,有什么为您效劳的' },
-  ]
-})
+const state = reactive({message: []})
 // 提供一个 getter 函数
 watch(
   () => state.message,
   (message) => {
     // console.log(JSON.stringify(message))
-    SELSQL(db,vyouTopic,JSON.stringify(message))
+    console.log(message,'新的')
+    // SELSQL(db,vyouTopic,JSON.stringify(message))
   }
 )
-const topic = '147'
+const topic = '1'
 onMounted(()=>{
+  // console.log(vmeTopic)
   client.on('connect', () => {
     console.log('Connected')
     client.subscribe([topic], () => {
@@ -33,19 +33,25 @@ onMounted(()=>{
     
   })
   client.on('message', (topic, payload) => {
-    console.log('first',topic,payload.toString())
-    state.message = [...state.message, { who: 'rebot', text: payload.toString() }]
+    // console.log('first',topic,payload.toString())
+    insertMessage(db,vyouTopic,vmeTopic,payload.toString(),(data) => {
+        state.message = [...state.message, data[0]]
+        nextTick(() => {
+          getdiv.value.scrollTop = getdiv.value.scrollHeight
+        })
+      })
+    // state.message = [...state.message, { who: 'rebot', text: payload.toString() }]
     // console.log(topic,'555')
-    if(changeChildMessage.value.userTable === undefined){
+    /* if(changeChildMessage.value.userTable === undefined){
         return
-      }
-    else{console.log(changeChildMessage.value.userTable.filter((item) => {
+      } */
+    /* else{console.log(changeChildMessage.value.userTable.filter((item) => {
       if(item.topic == undefined) return
         if(item.topic.toString() === vyouTopic){
           item.message = state.message
           return item
         }
-      }),'vyouTopic:',vyouTopic)}
+      }),'vyouTopic:',vyouTopic)} */
   })
 })
   
@@ -107,10 +113,17 @@ onMounted(()=>{
 // 	};
   let PubMsg = (Topic, Msg) => {
 		if (client && client.connected) {
-			client.publish(Topic, Msg);
+			client.publish(`${Topic}`, Msg);
 			console.log('发布成功->' + Topic + '->' + Msg)
-      state.message = [...state.message, { who: 'person', text: Msg }]
-      if(changeChildMessage.value.userTable === undefined){
+      insertMessage(db,vmeTopic,vyouTopic,Msg,(data) => {
+        state.message = [...state.message, data[0]]
+        // console.log(getdiv.value.scrollTop)
+        nextTick(() => {
+          getdiv.value.scrollTop = getdiv.value.scrollHeight
+        })
+      })
+      // state.message = [...state.message, {id:5, formid:1, toid:3 ,context: Msg }]
+      /* if(changeChildMessage.value.userTable === undefined){
         return
       }else{
         console.log(changeChildMessage.value.userTable.filter((item) => {
@@ -119,7 +132,7 @@ onMounted(()=>{
           return item
         }
       }))
-      }
+      } */
       
 
 		} else {
@@ -136,6 +149,23 @@ const handleSend = () => {
   PubMsg(vyouTopic,SendValue)
   SendValue = ''
 }
+const getscroll = (e) => {
+  if(e.target.scrollTop == 0){
+    let i = state.message.length
+    selectMessage(db,vmeTopic,vyouTopic,(data) => {
+    state.message = [...data,...state.message]
+    nextTick(() => {
+      if(i = 0){
+        e.target.scrollTop = 0
+      }else
+        e.target.scrollTop = i*80-80
+        console.log(e.target.scrollTop)
+        })
+  },i)
+  
+  }
+
+}
   // subone(vyourTopic);
   /* state.message = [...state.message, { who: 'person', text: SendValue }]
   SendValue = ""
@@ -145,22 +175,23 @@ const handleSend = () => {
 // }
 
 /*****传送给子组件的函数***获取侧边栏的topic值*****/
-const getTopic = (topic: any, newtxt: any) => {
-  vyouTopic = topic.toString()
-  // console.log(topic)
-  state.message = newtxt
-  // return state.message
+const getMessage = (message: any,other_id: any,me_id: any) => {
+  vyouTopic = other_id
+  vmeTopic = me_id
+  console.log(vyouTopic, '哈哈')
+  state.message = message
+  console.log(state.message)
 }
 </script>
 
 <template>
   <div class="box">
-    <SideBar ref="changeChildMessage"  :getTopic="getTopic" />
+    <SideBar :getMessage="getMessage" />
   </div>
   <div class="main">
-    <div class="main-top">
+    <div @scroll="getscroll($event)" ref="getdiv" class="main-top">
       <template v-for="(item, index) in state.message">
-        <List :who="item.who" :text="item.text" />
+        <List :who="item.fromid" :text="item.context" />
       </template>
     </div>
     <div class="home-input">

@@ -2,7 +2,7 @@
 import { string } from 'yargs';
 import ren from '../../../../assets/images/人.png'
 import ji from '../../../../assets/images/机.png'
-
+import 'animate.css'
 const props = defineProps(['who','text'])
 </script>
 
@@ -10,8 +10,8 @@ const props = defineProps(['who','text'])
   <div class="message-div">
     <div class="message-info">
       <div class="one">
-        <img v-if="props.who === 'person'" :src=ren alt="">
-        <img v-if="props.who === 'rebot'" :src=ji alt="">
+        <img v-if="props.who === 1" :src=ren alt="">
+        <img v-if="props.who !== 1" :src=ji alt="">
       </div>
       <div class="two">
         <p>{{ props.text }}</p>

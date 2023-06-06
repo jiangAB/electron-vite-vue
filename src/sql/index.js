@@ -28,17 +28,31 @@ export function INSQL(db,callback) {
     callback && callback(res)
   })
 }
-
-export function selectMessage(db,topic,callback) {
+//查询聊天列表
+export function selectList(db,callback) {
   var str = []
-  db.all(`SELECT * from message where ytopic = ${topic};`,(err,res) => {
+  db.all('SELECT * from topicGroup INNER JOIN usertable ON other_id = topic_id',(err,res) => {
+    str = res
+    callback && callback(res)
+  })
+}
+//查询聊天信息
+export function selectMessage(db,fromid,toid,callback,i = 0) {
+  var str = []
+  console.log(`SELECT * from message WHERE fromid = '${fromid}' AND toid = '${toid}' OR fromid = '${toid}' AND toid = '${fromid}' limit ${i},10`)
+  db.all(`SELECT * FROM (SELECT * from message WHERE fromid = '${fromid}' AND toid = '${toid}' OR fromid = '${toid}' AND toid = '${fromid}' ORDER by id DESC limit ${i},10) ORDER by id `,(err,res) => {
     str = res
     callback && callback(res)
   })
 }
 
-export function SELSQL(db,topic,data){
-  db.all(`  UPDATE userMessage set message = '${data}' WHERE topic = ${topic} `
-    
-  )
+export function insertMessage(db,fromid,toid,context,callback) {
+  console.log(fromid,toid,context)
+  console.log(`INSERT INTO message (fromid,toid,context) VALUES (${fromid},${toid},'${context}')`)
+  var str = []
+  db.all(`INSERT INTO message (fromid,toid,context) VALUES (${fromid},${toid},'${context}') RETURNING id`,(err,res) => {
+    db.all(`SELECT * from message WHERE id = ${res[0].id}`,(err,res) => {
+      callback && callback(res)
+    })
+  })
 }
