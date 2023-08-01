@@ -171,7 +171,7 @@
     "mimic-response": "^1.0.1",
     "minimatch": "^3.1.2",
     "minimist": "^1.2.8",
-    "minipass": "^5.0.0",
+    "minipass": "^7.0.2",
     "minizlib": "^2.1.2",
     "mkdirp": "^1.0.4",
     "mock-aws-s3": "^4.0.2",
